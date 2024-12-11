@@ -4,16 +4,68 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 # Create your models here.
-class ObraSocial(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name=_('Nombre'))
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError(_('El correo electrónico es obligatorio'))
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if not extra_fields.get('is_staff'):
+            raise ValueError('Superusuario debe tener is_staff=True.')
+        if not extra_fields.get('is_superuser'):
+            raise ValueError('Superusuario debe tener is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(unique=True, verbose_name=_('correo electrónico'))
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)  # Requerido para admin
+    is_superuser = models.BooleanField(default=False)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+
+    def __str__(self):
+        return self.email
+
+    def has_perm(self, perm, obj=None):
+        """
+        Retorna True si el usuario tiene un permiso específico.
+        """
+        return True  # Cambiar según necesidades
+
+    def has_module_perms(self, app_label):
+        """
+        Retorna True si el usuario tiene permisos en una app específica.
+        """
+        return True  # Cambiar según necesidades
+
 
 class RubroUsuario(models.Model):
     def __str__(self):
         return str(self.descripcion)
     codigo = models.CharField(max_length=2)
     descripcion = models.CharField(max_length=50)
+
+class ObraSocial(models.Model):
+    def __str__(self):
+        return str(self.nombre)
+    nombre = models.CharField(max_length=100, verbose_name=_('Nombre'))
 
 class Pais(models.Model):
     def __str__(self):
@@ -35,29 +87,16 @@ class Clinica(models.Model):
     logo = models.ImageField(default='default.jpg', upload_to='logos')
 
 
-class Profile(models.Model):
-    def __str__(self):
-        return str(self.user.username)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
-    clinica = models.ForeignKey(Clinica, on_delete=models.CASCADE, null=True, blank=True)
-    rubroUsuario = models.ForeignKey(RubroUsuario, on_delete=models.CASCADE, null=True, blank=True)
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
-
 
 
 class Especialidad(models.Model):
+    def __str__(self):
+        return str(self.nombre)
     nombre = models.CharField(max_length=100)
 
 class Profesional(models.Model):
+    def __str__(self):
+        return self.apellido + ', ' + self.nombre
     clinica = models.ForeignKey(Clinica, on_delete=models.CASCADE, verbose_name=_("clinica"))
     nombre = models.CharField(max_length=100, verbose_name=_('nombre'))
     apellido = models.CharField(max_length=100, verbose_name=_('apellido'))
@@ -93,12 +132,18 @@ class BloqueoHorarioProfesional(models.Model):
     desde = models.DateField(verbose_name=_('Desde'))
     hasta = models.DateField(verbose_name=_('Hasta'))
 
+class TipoDocumento(models.Model):
+    def __str__(self):
+        return self.descripcion
+    descripcion = models.CharField(max_length=50, verbose_name=_('descripcion'))
+    
+
 
 class Paciente(models.Model):
-    clinica = models.ForeignKey(Clinica, on_delete=models.CASCADE, verbose_name=_("clinica"))
     nombre = models.CharField(max_length=100, verbose_name=_('nombre'))
     apellido = models.CharField(max_length=100, verbose_name=_('apellido'))
     fecha_nacimiento = models.DateField(verbose_name=_('fecha_nacimiento'))
+    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, verbose_name=_('tipo_documento'), null=True, blank=True)
     dni = models.CharField(max_length=30, verbose_name=_('dni'))
     genero = models.CharField(max_length=1, choices=[
                                                         ('F', _('Femenino')),
@@ -126,4 +171,4 @@ class Turno(models.Model):
     hora = models.TimeField(verbose_name=_("hora"))
     estado = models.CharField(max_length=1)
     notas = models.TextField(verbose_name=_("notas"), blank=True, null=True)
-    usuario = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=True, null=True)
+    usuario = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
