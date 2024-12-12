@@ -31,10 +31,11 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, verbose_name=_('correo electrónico'))
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)  # Requerido para admin
     is_superuser = models.BooleanField(default=False)
-
+    first_name = models.CharField(max_length=30, verbose_name=_('nombre'), blank=True)
+    last_name = models.CharField(max_length=30, verbose_name=_('apellido'), blank=True)
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
@@ -85,9 +86,6 @@ class Clinica(models.Model):
     cuit = models.CharField(max_length=50)
     pais = models.ForeignKey(Pais, on_delete=models.CASCADE)
     logo = models.ImageField(default='default.jpg', upload_to='logos')
-    dominio = models.URLField(max_length=200, unique=True, null=True, blank=True)
-
-
 
 
 class Especialidad(models.Model):
