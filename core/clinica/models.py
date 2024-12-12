@@ -85,6 +85,7 @@ class Clinica(models.Model):
     cuit = models.CharField(max_length=50)
     pais = models.ForeignKey(Pais, on_delete=models.CASCADE)
     logo = models.ImageField(default='default.jpg', upload_to='logos')
+    dominio = models.URLField(max_length=200, unique=True, null=True, blank=True)
 
 
 

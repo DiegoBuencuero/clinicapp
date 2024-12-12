@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+{% load static %}
+{% load i18n %}
+<html lang="en">
+  <head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Agro Innova</title>
+  <!-- plugins:css -->
+  <link rel="stylesheet" href="{% static 'vendors/feather/feather.css' %}">
+  <link rel="stylesheet" href="{% static 'vendors/ti-icons/css/themify-icons.css' %}">
+  <link rel="stylesheet" href="{% static 'vendors/css/vendor.bundle.base.css' %}">
+  <link rel="stylesheet" href="{% static 'node_modules/mdi/font/css/materialdesignicons.min.css' %}"/>
+<!-- endinject -->
+  <!-- Plugin css for this page -->
+  <!-- End plugin css for this page -->
+  <!-- inject:css -->
+  <link rel="stylesheet" href="{% static 'css/vertical-layout-light/style.css' %}">
+  <!-- endinject -->
+  <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" />
+</head>
+<style>
+
+</style>
+  <body>
+    <div class="main-panel" style="width: 100%; margin: 0; padding: 0;">
+      <div class="content-wrapper">
+        <div class="row mb-4">
+          <div class="col-md-12 text-center">
+            {% comment %} <h2 class="mb-3">Busca tu especialista</h2>
+                  
+              
+            </div> {% endcomment %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+              <div class="card">
+                  <div class="card-body">
+                      <h4 class="card-title">{{ clinica.nombre_fantasia }}</h4>
+                      <p><strong>Razón Social:</strong> {{ clinica.razon_social }}</p>
+                      <p><strong>Dirección:</strong> {{ clinica.direccion }}</p>
+                      <p><strong>Teléfono:</strong> {{ clinica.telefono }}</p>
+                      <p><strong>Móvil:</strong> {{ clinica.movil }}</p>
+                      <p><strong>Email:</strong> {{ clinica.email }}</p>
+                      <p><strong>CUIT:</strong> {{ clinica.cuit }}</p>
+                      <p><strong>País:</strong> {{ clinica.pais.nombre }}</p>
+                      <img src="{{ clinica.logo.url }}" alt="Logo de {{ clinica.nombre_fantasia }}" class="img-fluid">
+                  </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="{% static 'vendors/js/vendor.bundle.base.js' %}"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    {% block plugin_js %}
+    {% endblock %}
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="{% static 'js/off-canvas.js' %}"></script>
+    <script src="{% static 'js/hoverable-collapse.js' %}"></script>
+    <script src="{% static 'js/template.js' %}"></script>
+    <script src="{% static 'js/settings.js' %}"></script>
+    <script src="{% static 'js/todolist.js' %}"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page-->
+    {% block custom_js %}
+    {% endblock %}
+    <!-- End custom js for this page-->
+  </body>
+</html>
