@@ -7,6 +7,30 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 # Create your models here.
+class RubroUsuario(models.Model):
+    def __str__(self):
+        return str(self.descripcion)
+    codigo = models.CharField(max_length=2)
+    descripcion = models.CharField(max_length=50)
+
+class Pais(models.Model):
+    def __str__(self):
+        return self.descripcion
+    codigo = models.CharField( max_length=2, verbose_name=_("codigo") )
+    descripcion = models.CharField( max_length=100, verbose_name=_("descripcion"))
+
+class Clinica(models.Model):
+    def __str__(self):
+        return str(self.razon_social)
+    razon_social = models.CharField(max_length=100)
+    nombre_fantasia = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=100)
+    telefono = models.CharField(max_length=30)
+    movil = models.CharField(max_length=30)
+    email = models.EmailField()
+    cuit = models.CharField(max_length=50)
+    pais = models.ForeignKey(Pais, on_delete=models.CASCADE)
+    logo = models.ImageField(default='default.jpg', upload_to='logos')
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -37,6 +61,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30, verbose_name=_('nombre'), blank=True)
     last_name = models.CharField(max_length=30, verbose_name=_('apellido'), blank=True)
     objects = CustomUserManager()
+    rubro_usuario = models.ForeignKey(RubroUsuario, on_delete=models.CASCADE, blank = True, null=True)
+    clinica = models.ForeignKey(Clinica, on_delete=models.CASCADE, blank = True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -57,36 +83,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return True  # Cambiar según necesidades
 
 
-class RubroUsuario(models.Model):
-    def __str__(self):
-        return str(self.descripcion)
-    codigo = models.CharField(max_length=2)
-    descripcion = models.CharField(max_length=50)
 
 class ObraSocial(models.Model):
     def __str__(self):
         return str(self.nombre)
     nombre = models.CharField(max_length=100, verbose_name=_('Nombre'))
-
-class Pais(models.Model):
-    def __str__(self):
-        return self.descripcion
-    codigo = models.CharField( max_length=2, verbose_name=_("codigo") )
-    descripcion = models.CharField( max_length=100, verbose_name=_("descripcion"))
-
-class Clinica(models.Model):
-    def __str__(self):
-        return str(self.razon_social)
-    razon_social = models.CharField(max_length=100)
-    nombre_fantasia = models.CharField(max_length=100)
-    direccion = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=30)
-    movil = models.CharField(max_length=30)
-    email = models.EmailField()
-    cuit = models.CharField(max_length=50)
-    pais = models.ForeignKey(Pais, on_delete=models.CASCADE)
-    logo = models.ImageField(default='default.jpg', upload_to='logos')
-
 
 class Especialidad(models.Model):
     def __str__(self):
@@ -137,8 +138,9 @@ class TipoDocumento(models.Model):
     descripcion = models.CharField(max_length=50, verbose_name=_('descripcion'))
     
 
-
 class Paciente(models.Model):
+    def __str__(self):
+        return self.apellido + ', ' + self.nombre
     nombre = models.CharField(max_length=100, verbose_name=_('nombre'))
     apellido = models.CharField(max_length=100, verbose_name=_('apellido'))
     fecha_nacimiento = models.DateField(verbose_name=_('fecha_nacimiento'))
@@ -156,6 +158,7 @@ class Paciente(models.Model):
     obra_social = models.ForeignKey(ObraSocial, on_delete=models.CASCADE, verbose_name=_("obra_social"))
     numero_afiliado = models.CharField(max_length=50)
     estado = models.CharField(max_length=1)
+    clinicas = models.ManyToManyField(Clinica, related_name='pacientes')
 
 
 class Habilitacion(models.Model):

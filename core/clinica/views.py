@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Clinica, Paciente, ObraSocial
+from .models import Clinica, Paciente, ObraSocial, RubroUsuario, Profesional
 from django.contrib.auth.decorators import login_required
 from .form import LoginForm, SignupForm
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
@@ -20,22 +20,33 @@ def dashboard(request):
 
 
 def inicio(request):
+    if request.user.is_authenticated and request.user.rubro_usuario.codigo == 'AC':
+        return render(request, 'index.html')
     clinicas = Clinica.objects.all()
     return render (request, "landing.html", {"clinicas": clinicas})
 
 @login_required
 def clinica_detalle(request, id):
-    try:
-        clinica = Clinica.objects.get(id=id)
-        return render(request, 'clinica_detalle.html', {'clinica': clinica})
-    except Clinica.DoesNotExist:
-        return render(request, 'pag_error.html')  
-    
+    usuario = request.user
+    if usuario.rubro_usuario:
+        if usuario.rubro_usuario.codigo == 'PA':
+            try:
+                clinica = Clinica.objects.get(id=id)
+                return render(request, 'clinica_detalle.html', {'clinica': clinica})
+            except Clinica.DoesNotExist:
+                return render(request, 'pag_error.html')  
+        else:
+            if usuario.rubro_usuario.codigo == 'AC':
+                return render(request, 'index.html')
+            else:
+                return render(request, 'pag_error.html')          
+    else:
+        return render(request, 'pag_error.html')          
+
 
 def login_view(request):
 
     if request.method == 'GET':
-        print (request.GET)
         next_url = request.GET.get('next', '/')
         form = LoginForm()
         return render(request,'login.html', {'form': form, 'next': next_url})
@@ -56,7 +67,7 @@ def login_view(request):
                 form.add_error('email', 'Usuario o password no validos.')
         
         # form is not valid or user is not authenticated
-        return render(request,'login.html',{'form': form})
+        return render(request,'login.html',{'form': form, 'next': next_url})
 
 
 
@@ -67,6 +78,8 @@ def signup(request):
             # save form in the memory not in database  
             user = form.save(commit=False)  
             user.is_active = False
+            rubro = RubroUsuario.objects.get(codigo = 'PA')
+            user.rubro_usuario = rubro
             user.save()
             osde = ObraSocial.objects.get(id=1)
             paciente = Paciente(nombre = form.cleaned_data['first_name'], 
@@ -98,7 +111,7 @@ def signup(request):
                         mail_subject, message, to=[to_email]  
             )  
             email.send()  
-            return HttpResponse('Please confirm your email address to complete the registration')  
+            return render(request, 'checkmail.html', {'user': user}) 
     else:  
         form = SignupForm()  
     return render(request, 'signup.html', {'form': form})  
@@ -112,7 +125,32 @@ def activate(request, uidb64, token):
         user = None  
     if user is not None and account_activation_token.check_token(user, token):  
         user.is_active = True  
-        user.save()  
-        return HttpResponse('Thank you for your email confirmation. Now you can login your account.')  
+        user.save()
+        return render(request, 'activateok.html', {'user': user})
     else:  
         return HttpResponse('Activation link is invalid!')
+
+
+
+@login_required
+def pacientes(request):
+    usuario = request.user
+    if usuario.rubro_usuario.codigo != 'AC':
+        return render(request, 'pag_error.html')
+    clinica = usuario.clinica
+    if request.method == 'GET':
+        pacientes = clinica.pacientes.all()
+        return render(request, 'pacientes.html', {'pacientes': pacientes})
+    
+
+
+
+@login_required
+def profesionales(request):
+    usuario = request.user
+    if usuario.rubro_usuario.codigo != 'AC':
+        return render(request, 'pag_error.html')
+    clinica = usuario.clinica
+    if request.method == 'GET':
+        profesionales = Profesional.objects.filter(clinica = clinica).order_by('apellido')
+        return render(request, 'profesionales.html', {'profesionales': profesionales})

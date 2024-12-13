@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from clinica.views import dashboard, inicio, clinica_detalle
+from clinica.views import dashboard, inicio, clinica_detalle, pacientes, profesionales
 from django.conf import settings
 from clinica.views import login_view, signup, activate
 from django.conf.urls.static import static
@@ -38,6 +38,8 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('signup/', signup),
     path('activate/<uidb64>/<token>/', activate, name='activate'),  
+    path('pacientes', pacientes, name='pacientes'),
+    path('profesionales', profesionales, name='profesionales'),
 
 
 ]
