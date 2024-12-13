@@ -29,6 +29,7 @@ urlpatterns = [
     path("dashboard", dashboard, name='daschboard'),
     path('', inicio, name='inicio'),
     path('clinica/<int:id>/', clinica_detalle, name='clinica_detalle'),
+    #----------------------------LOGIN-----------------------------------------------
     path('login/', login_view, name='login_view'),
     path('accounts/password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('accounts/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),

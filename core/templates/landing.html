@@ -67,8 +67,8 @@
                   <i class="fas fa-phone-alt"></i> {{ clinica.telefono }}
                 </p>
                 <div class="text-center">
-                  <a href="{% url 'clinica_detalle' clinica.id %}" class="btn btn-primary btn-sm">Más información</a>
-                  <a href="#" class="btn btn-outline-success btn-sm">Sacar turno</a>
+                  <a href="{% url 'clinica_detalle' clinica.id %}" class="btn btn-primary btn-sm">{% translate "Más información" %}</a>
+                  <a href="#" class="btn btn-outline-success btn-sm">{% translate "Calendario" %}</a>
                 </div>
               </div>
             </div>
