@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Clinica, Paciente, ObraSocial, RubroUsuario, Profesional
 from django.contrib.auth.decorators import login_required
 from .form import LoginForm, SignupForm, ProfesionalABMForm
@@ -146,45 +146,51 @@ def pacientes(request):
 
 # ---------------------------------------PROFESIONAL------------------------------------
 @login_required
-def profesionales(request, id_profesional=None):
+def profesionales(request, id=None):
     usuario = request.user
+
+    # Validar si el usuario tiene permiso
     if usuario.rubro_usuario.codigo != 'AC':
         return render(request, 'pag_error.html')
 
     clinica = usuario.clinica
     profesionales = Profesional.objects.filter(clinica=clinica).order_by('apellido')
-    if id_profesional:  # Para editar
-        profesional = Profesional.objects.get(id=id_profesional)
+    modificacion = False
+
+    # Si se proporciona un ID, se está en modo edición
+    if id:
+        profesional = get_object_or_404(Profesional, id=id)  # Manejo de excepción si no existe
         if request.method == 'POST':
             form = ProfesionalABMForm(request.POST, instance=profesional)
-            if 'borrar' in request.POST:  # Si se presiona el botón borrar
+            if 'borrar' in request.POST and form.is_valid():
                 profesional.delete()
                 messages.success(request, "El profesional fue eliminado exitosamente.")
                 return redirect('profesionales')
-            elif form.is_valid():  # Actualizar registro
+            elif form.is_valid():
                 form.save()
                 messages.success(request, "El profesional fue actualizado exitosamente.")
                 return redirect('profesionales')
         else:
             form = ProfesionalABMForm(instance=profesional)
             modificacion = True
-    else:  # Para crear uno nuevo
+
+    else:  # Modo creación
         if request.method == 'POST':
             form = ProfesionalABMForm(request.POST)
-            print("Datos enviados en POST:", request.POST)  
             if form.is_valid():
-                print("Formulario válido")
                 profesional = form.save(commit=False)
-                profesional.clinica = clinica  
-                profesional.estado = 'A'  # hay que crear los diferente estados
+                profesional.clinica = clinica
+                profesional.estado = 'A'  # Define estados iniciales
                 profesional.save()
-                print("Profesional creado:", profesional) 
                 messages.success(request, "El profesional fue creado exitosamente.")
                 return redirect('profesionales')
             else:
-                print("Errores del formulario:", form.errors)  
-
+                messages.error(request, "Error al crear el profesional. Revisa los datos ingresados.")
         else:
             form = ProfesionalABMForm()
 
-    return render(request, 'profesionales.html', {'form': form, 'profesionales': profesionales})
+    return render(request, 'profesionales.html', {
+        'form': form,
+        'profesionales': profesionales,
+        'modificacion': modificacion
+    })

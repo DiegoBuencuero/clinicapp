@@ -31,7 +31,7 @@ urlpatterns = [
     path('clinica/<int:id>/', clinica_detalle, name='clinica_detalle'),
     #----------------------------PROFESIONAL-----------------------------------------------
     path('profesionales', profesionales, name='profesionales'),
-    path('profesionales/<int:id_profesional>/', profesionales, name='editar_profesional'),
+    path('profesionales/<int:id>/', profesionales, name='editar_profesional'),
 
     #----------------------------LOGIN-----------------------------------------------
     path('login/', login_view, name='login_view'),

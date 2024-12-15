@@ -55,26 +55,21 @@
             <tr>
               <th>{% translate 'Apellido' %}</th>
               <th>{% translate 'Nombre' %}</th>
-              <th>{% translate 'Nombre' %}</th>
-              <th>{% translate 'Has totales' %}</th>
-              <th>{% translate 'Has productivas' %}</th>
-              <th>{% translate 'Utilizable' %}</th>
+              <th>{% translate 'Especialidad' %}</th>
+
             </tr>
           </thead>
           <tbody>
             {% for profesional in profesionales %}
             <tr>
-              <td>{{ profesional.nombre }}</td>
-              <td>{{ profesional.apellido }}</td>
-              <td>{{ profesional.especialidad }}</td>
-              <td>
-                <a href="{% url 'profesionales' id_profesional=profesional.id %}" class="btn btn-sm btn-warning">
-                  {% translate 'Editar' %}
-                </a>
-              </td>
+                <td>
+                    <a href="/profesionales/{{ profesional.id }}">{{ profesional.nombre }}</a>
+                </td>
+                <td>{{ profesional.apellido }}</td>
+                <td>{{ profesional.especialidad }}</td>
             </tr>
             {% endfor %}
-          </tbody>
+        </tbody>
         </table>
       </div>
     </div>
