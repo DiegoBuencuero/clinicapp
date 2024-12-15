@@ -29,6 +29,10 @@ urlpatterns = [
     path("dashboard", dashboard, name='daschboard'),
     path('', inicio, name='inicio'),
     path('clinica/<int:id>/', clinica_detalle, name='clinica_detalle'),
+    #----------------------------PROFESIONAL-----------------------------------------------
+    path('profesionales', profesionales, name='profesionales'),
+    path('profesionales/<int:id_profesional>/', profesionales, name='editar_profesional'),
+
     #----------------------------LOGIN-----------------------------------------------
     path('login/', login_view, name='login_view'),
     path('accounts/password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
@@ -39,7 +43,12 @@ urlpatterns = [
     path('signup/', signup),
     path('activate/<uidb64>/<token>/', activate, name='activate'),  
     path('pacientes', pacientes, name='pacientes'),
-    path('profesionales', profesionales, name='profesionales'),
+  
+    #----------------------------PARA ACOMODAR-----------------------------------------------
+
+
+
+
 
 
 ]

@@ -1,9 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Clinica, Paciente, ObraSocial, RubroUsuario, Profesional
 from django.contrib.auth.decorators import login_required
-from .form import LoginForm, SignupForm
+from .form import LoginForm, SignupForm, ProfesionalABMForm
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
-from django.shortcuts import redirect
+from django.contrib import messages 
 from django.utils import timezone
 from django.contrib.sites.shortcuts import get_current_site  
 from django.template.loader import render_to_string  
@@ -13,6 +13,9 @@ from .tokens import account_activation_token
 from django.core.mail import EmailMessage  
 from django.http import HttpResponse  
 from django.contrib.auth import get_user_model
+
+
+
 
 # Create your views here.
 def dashboard(request):
@@ -45,7 +48,6 @@ def clinica_detalle(request, id):
 
 
 def login_view(request):
-
     if request.method == 'GET':
         next_url = request.GET.get('next', '/')
         form = LoginForm()
@@ -65,10 +67,8 @@ def login_view(request):
                 return redirect(next_url)
             else:
                 form.add_error('email', 'Usuario o password no validos.')
-        
-        # form is not valid or user is not authenticated
-        return render(request,'login.html',{'form': form, 'next': next_url})
 
+        return render(request,'login.html',{'form': form, 'next': next_url})
 
 
 def signup(request):  
@@ -116,6 +116,7 @@ def signup(request):
         form = SignupForm()  
     return render(request, 'signup.html', {'form': form})  
 
+
 def activate(request, uidb64, token):  
     User = get_user_model()  
     try:  
@@ -130,7 +131,7 @@ def activate(request, uidb64, token):
     else:  
         return HttpResponse('Activation link is invalid!')
 
-
+# ---------------------------------------PACIENTE------------------------------------
 
 @login_required
 def pacientes(request):
@@ -143,14 +144,47 @@ def pacientes(request):
         return render(request, 'pacientes.html', {'pacientes': pacientes})
     
 
-
-
+# ---------------------------------------PROFESIONAL------------------------------------
 @login_required
-def profesionales(request):
+def profesionales(request, id_profesional=None):
     usuario = request.user
     if usuario.rubro_usuario.codigo != 'AC':
         return render(request, 'pag_error.html')
+
     clinica = usuario.clinica
-    if request.method == 'GET':
-        profesionales = Profesional.objects.filter(clinica = clinica).order_by('apellido')
-        return render(request, 'profesionales.html', {'profesionales': profesionales})
+    profesionales = Profesional.objects.filter(clinica=clinica).order_by('apellido')
+    if id_profesional:  # Para editar
+        profesional = Profesional.objects.get(id=id_profesional)
+        if request.method == 'POST':
+            form = ProfesionalABMForm(request.POST, instance=profesional)
+            if 'borrar' in request.POST:  # Si se presiona el botón borrar
+                profesional.delete()
+                messages.success(request, "El profesional fue eliminado exitosamente.")
+                return redirect('profesionales')
+            elif form.is_valid():  # Actualizar registro
+                form.save()
+                messages.success(request, "El profesional fue actualizado exitosamente.")
+                return redirect('profesionales')
+        else:
+            form = ProfesionalABMForm(instance=profesional)
+            modificacion = True
+    else:  # Para crear uno nuevo
+        if request.method == 'POST':
+            form = ProfesionalABMForm(request.POST)
+            print("Datos enviados en POST:", request.POST)  
+            if form.is_valid():
+                print("Formulario válido")
+                profesional = form.save(commit=False)
+                profesional.clinica = clinica  
+                profesional.estado = 'A'  # hay que crear los diferente estados
+                profesional.save()
+                print("Profesional creado:", profesional) 
+                messages.success(request, "El profesional fue creado exitosamente.")
+                return redirect('profesionales')
+            else:
+                print("Errores del formulario:", form.errors)  
+
+        else:
+            form = ProfesionalABMForm()
+
+    return render(request, 'profesionales.html', {'form': form, 'profesionales': profesionales})

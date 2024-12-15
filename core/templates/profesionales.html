@@ -4,34 +4,222 @@
 {% block plugin_css%}
 <link rel="stylesheet" href="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'js/select.dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'node_modules/mdi/font/css/materialdesignicons.min.css' %}">
 {% endblock %}                          
 {% block content %} 
-<div class="row">
-  <div class="col-md-4">
-    <table>
-      <thead>
-        <th>Apellido</th>
-        <th>Nombre</th>
-      </thead>
-      <tbody>
-        {% for profesional in profesionales %}
-        <tr>
-          <td>{{profesional.apellido}}</td>
-          <td>{{profesional.nombre}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-body">
-        <form class="form-sample" method='post' enctype="multipart/form-data">
-          {% csrf_token %}
-          <div class="row">
-          </div>
 
-        </form>
+{% if messages %}
+<div id="contenedor-mensajes" class="alert-messages">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+<div class="col-lg-12 grid-margin stretch-card">
+  <div class="card">
+    <div class="card-body">
+      <form class="form-inline" method="get" action="{% url 'profesionales' %}">
+        {% csrf_token %}
+        <div class="row w-100">
+          <!-- Buscador -->
+          <div class="col-md-8">
+            <div class="input-group">
+              <input type="text" name="search" class="form-control" placeholder="{% translate 'Buscar profesional...' %}" aria-label="{% translate 'Buscar profesional' %}">
+              <div class="input-group-append">
+                <button class="btn btn-primary" type="submit">{% translate 'Buscar' %}</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 text-right">
+            <a class="btn btn-primary" data-toggle="modal" data-target="#formModal">
+              <i class="icon-head menu-icon mr-2"><br></i>{% translate 'Agregar' %}
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="col-lg-12 grid-margin stretch-card">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="card-title">{% translate 'Profesionales' %}</h4>
+      <p class="card-description">
+        {{ empresa.nombre }}
+      </p>
+      <div class="table-responsive table-hover">
+        <table id='id_tabla' class="table table-striped">
+          <thead>
+            <tr>
+              <th>{% translate 'Apellido' %}</th>
+              <th>{% translate 'Nombre' %}</th>
+              <th>{% translate 'Nombre' %}</th>
+              <th>{% translate 'Has totales' %}</th>
+              <th>{% translate 'Has productivas' %}</th>
+              <th>{% translate 'Utilizable' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for profesional in profesionales %}
+            <tr>
+              <td>{{ profesional.nombre }}</td>
+              <td>{{ profesional.apellido }}</td>
+              <td>{{ profesional.especialidad }}</td>
+              <td>
+                <a href="{% url 'profesionales' id_profesional=profesional.id %}" class="btn btn-sm btn-warning">
+                  {% translate 'Editar' %}
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="formModalLabel">{% translate 'Agregar Profesional' %}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="{% translate 'Cerrar' %}">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="col-12 grid-margin">
+        <div class="card">
+          <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">{% translate 'Nombre' %}</label>
+                    <div class="col-sm-9">
+                      {{ form.nombre }}
+                      {{ form.nombre.errors }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">{% translate 'Apellido' %}</label>
+                    <div class="col-sm-9">
+                      {{ form.apellido }}
+                      {{ form.apellido.errors }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+      
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">{% translate 'Especialidad' %}</label>
+                    <div class="col-sm-9">
+                      {{ form.especialidad }}
+                      {{ form.especialidad.errors }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">{% translate 'Dirección' %}</label>
+                    <div class="col-sm-9">
+                      {{ form.direccion }}
+                      {{ form.direccion.errors }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+      
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">{% translate 'Teléfono' %}</label>
+                    <div class="col-sm-9">
+                      {{ form.telefono }}
+                      {{ form.telefono.errors }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">{% translate 'Móvil' %}</label>
+                    <div class="col-sm-9">
+                      {{ form.movil }}
+                      {{ form.movil.errors }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+      
+              <div class="row">
+
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">{% translate 'Email' %}</label>
+                    <div class="col-sm-9">
+                      {{ form.email }}
+                      {{ form.email.errors }}
+                    </div>
+                  </div>
+                </div>
+      
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">{% translate 'CUIT' %}</label>
+                    <div class="col-sm-9">
+                      {{ form.cuit }}
+                      {{ form.cuit.errors }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+      
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">{% translate 'Número Matrícula' %}</label>
+                    <div class="col-sm-9">
+                      {{ form.numero_matricula }}
+                      {{ form.numero_matricula.errors }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group row">
+                    <label class="col-sm-3 col-form-label">{% translate 'Obras Sociales' %}</label>
+                    <div class="col-sm-9">
+                      {{ form.obras_sociales }}
+                      {{ form.obras_sociales.errors }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+      
+              <div class="row">
+                <div class="col-md-6">
+                  {% if modificacion %}
+                    <button type="submit" name="ok" class="btn btn-primary mr-2">{% translate 'Actualizar' %}</button>
+                    <button type="submit" name="borrar" class="btn btn-danger mr-2">{% translate 'Borrar' %}</button>
+                  {% else %}
+                    <button type="submit" name="ok" class="btn btn-primary mr-2">{% translate 'Crear' %}</button>
+                  {% endif %}
+                  <button type="button" class="btn btn-dark" data-dismiss="modal">{% translate 'Cancelar' %}</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -45,6 +233,7 @@
 <script src="{% static 'vendors/datatables.net/jquery.dataTables.js' %}"></script>
 <script src="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.js' %}"></script>
 <script src="{% static 'js/dataTables.select.min.js' %}"></script>
+
 {% endblock %}
 {% block custom_js %}
 {% endblock %}

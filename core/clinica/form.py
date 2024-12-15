@@ -1,7 +1,21 @@
+from django.forms import ModelForm, Form
 from django import forms
 from django.contrib.auth.forms import UserCreationForm  
-from .models import TipoDocumento, CustomUser
+from .models import TipoDocumento, CustomUser, Profesional
 from django.utils.translation import gettext_lazy as _
+
+class BaseForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(BaseForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
+class RegularForm(Form):
+    def __init__(self, *args, **kwargs):
+        super(Form, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+
 
 class LoginForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -39,3 +53,12 @@ class SignupForm(UserCreationForm):
     class Meta:  
         model = CustomUser
         fields = ('first_name', 'last_name', 'email', 'tipo_documento', 'dni', 'password1', 'password2')
+
+
+class ProfesionalABMForm(BaseForm):
+    def __init__(self, *args, **kwargs):
+        super (ProfesionalABMForm,self ).__init__(*args,**kwargs)
+    class Meta:
+        model = Profesional
+        fields = '__all__'
+        exclude = ['clinica', 'estado']
