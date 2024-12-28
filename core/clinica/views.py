@@ -13,6 +13,8 @@ from .tokens import account_activation_token
 from django.core.mail import EmailMessage  
 from django.http import HttpResponse  
 from django.contrib.auth import get_user_model
+from django.db.models import Q
+from django.http import JsonResponse
 
 
 
@@ -146,7 +148,7 @@ def pacientes(request):
 
 # ---------------------------------------PROFESIONAL------------------------------------
 @login_required
-def profesionales(request, id=None):
+def oprofesionales(request, id=None):
     usuario = request.user
 
     # Validar si el usuario tiene permiso
@@ -188,6 +190,61 @@ def profesionales(request, id=None):
                 messages.error(request, "Error al crear el profesional. Revisa los datos ingresados.")
         else:
             form = ProfesionalABMForm()
+
+    return render(request, 'profesionales.html', {
+        'form': form,
+        'profesionales': profesionales,
+        'modificacion': modificacion
+    })
+
+
+
+
+@login_required
+def ajax_obtener_profesionales(request):
+    if request.method == 'GET':
+        valor = request.GET.get('valor')
+        profesionales = Profesional.objects.filter(Q(nombre__icontains=valor) | Q(apellido__icontains=valor) | Q(numero_matricula__icontains=valor))
+        data =[]
+        for profesional in profesionales:
+            data.append({'id': profesional.id, 'nombre': profesional.nombre, 'apellido': profesional.apellido, 'especialidad_nombre':profesional.especialidad.nombre})
+        response = {'status': '0', 'data': data}
+        return JsonResponse(response)
+
+
+@login_required
+def profesionales(request, id=None):
+    usuario = request.user
+    if usuario.rubro_usuario.codigo != 'AC':
+        return render(request, 'pag_error.html')
+    clinica = usuario.clinica
+    profesionales = Profesional.objects.filter(clinica=clinica).order_by('apellido')
+    modificacion = False
+    if request.method == 'GET':
+        form = ProfesionalABMForm()
+        if id:
+            profesional = get_object_or_404(Profesional, id=id)
+            form = ProfesionalABMForm(instance=profesional)
+            modificacion = True
+    else:
+        if 'btn_baja' in request.POST:
+            profesional = get_object_or_404(Profesional, id=id)
+            profesional.delete()
+            form = ProfesionalABMForm()
+        else:
+            if request.POST.get('btn_alta'):
+                form = ProfesionalABMForm(request.POST)
+                if form.is_valid():
+                    objeto = form.save(commit=False)
+                    objeto.clinica = clinica
+                    objeto.estado = 'A'  # Define estados iniciales
+                    objeto.save()
+
+            elif 'btn_modif' in request.POST:
+                profesional = get_object_or_404(Profesional, id=id)
+                form = ProfesionalABMForm(request.POST, instance = profesional)
+                form.save()
+                form = ProfesionalABMForm()
 
     return render(request, 'profesionales.html', {
         'form': form,

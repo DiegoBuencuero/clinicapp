@@ -53,10 +53,9 @@
         <table id='id_tabla' class="table table-striped">
           <thead>
             <tr>
-              <th>{% translate 'Apellido' %}</th>
               <th>{% translate 'Nombre' %}</th>
+              <th>{% translate 'Apellido' %}</th>
               <th>{% translate 'Especialidad' %}</th>
-
             </tr>
           </thead>
           <tbody>
@@ -76,7 +75,7 @@
   </div>
 </div>
 
-<div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="true">
+<div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="{% if not modificacion %}true{% endif %}">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -204,10 +203,10 @@
               <div class="row">
                 <div class="col-md-6">
                   {% if modificacion %}
-                    <button type="submit" name="ok" class="btn btn-primary mr-2">{% translate 'Actualizar' %}</button>
-                    <button type="submit" name="borrar" class="btn btn-danger mr-2">{% translate 'Borrar' %}</button>
+                    <button type="submit" name="btn_modif" class="btn btn-primary mr-2">{% translate 'Actualizar' %}</button>
+                    <button type="submit" name="btn_baja" class="btn btn-danger mr-2">{% translate 'Borrar' %}</button>
                   {% else %}
-                    <button type="submit" name="ok" class="btn btn-primary mr-2">{% translate 'Crear' %}</button>
+                    <button type="submit" name="btn_alta" class="btn btn-primary mr-2">{% translate 'Crear' %}</button>
                   {% endif %}
                   <button type="button" class="btn btn-dark" data-dismiss="modal">{% translate 'Cancelar' %}</button>
                 </div>
@@ -231,4 +230,56 @@
 
 {% endblock %}
 {% block custom_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    {% if modificacion %}
+      var modal = new bootstrap.Modal(document.getElementById('formModal'), {
+        backdrop: 'static',
+        keyboard: false
+      });
+      modal.show();
+    {% endif %}
+    id_search_top_bar.placeholder = 'Busqueda de clientes';
+    id_search_top_bar.addEventListener('input', function () {
+        load_profesionales(id_search_top_bar.value);
+    });
+
+  });
+
+
+  function load_profesionales(valor) {
+    $.ajax({
+        url: '{% url "ajax_obtener_profesionales" %}', // Asegúrate de que esta URL esté bien generada
+        type: 'GET',
+        dataType: 'json',
+        data: {
+            'valor': valor
+        },
+        success: function(data) {
+            if (data.status === '0') {
+                var tbody = $('#id_tabla tbody');
+                tbody.empty();
+                data.data.forEach(function(registro) {
+
+                  var row = '<tr>' +
+                              '<td>' + '<a href="/profesionales/' + registro.id + '">' + registro.nombre + '</a>' + '</td>' +
+                              '<td>' + registro.apellido + '</td>' +
+                              '<td>' + registro.especialidad_nombre + '</td>' +
+                              '</tr>';
+                    tbody.append(row);
+                });
+            } else {
+                // Muestra un mensaje de alerta si ocurre un error
+                alert('Error al buscar profesionales.');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            // Muestra un mensaje de alerta si ocurre un error
+            alert('Error al obtener los datos');
+        }
+    });
+}
+
+</script>
 {% endblock %}

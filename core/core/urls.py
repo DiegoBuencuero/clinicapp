@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from clinica.views import dashboard, inicio, clinica_detalle, pacientes, profesionales
 from django.conf import settings
-from clinica.views import login_view, signup, activate
+from clinica.views import login_view, signup, activate, ajax_obtener_profesionales
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
@@ -32,6 +32,7 @@ urlpatterns = [
     #----------------------------PROFESIONAL-----------------------------------------------
     path('profesionales', profesionales, name='profesionales'),
     path('profesionales/<int:id>/', profesionales, name='editar_profesional'),
+    path('get_prof', ajax_obtener_profesionales, name='ajax_obtener_profesionales'),
 
     #----------------------------LOGIN-----------------------------------------------
     path('login/', login_view, name='login_view'),
@@ -43,6 +44,7 @@ urlpatterns = [
     path('signup/', signup),
     path('activate/<uidb64>/<token>/', activate, name='activate'),  
     path('pacientes', pacientes, name='pacientes'),
+
   
     #----------------------------PARA ACOMODAR-----------------------------------------------
 
