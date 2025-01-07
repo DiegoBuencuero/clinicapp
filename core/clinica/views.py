@@ -217,37 +217,44 @@ def profesionales(request, id=None):
     usuario = request.user
     if usuario.rubro_usuario.codigo != 'AC':
         return render(request, 'pag_error.html')
+
     clinica = usuario.clinica
     profesionales = Profesional.objects.filter(clinica=clinica).order_by('apellido')
     modificacion = False
+    form = None
+
     if request.method == 'GET':
-        form = ProfesionalABMForm()
         if id:
-            profesional = get_object_or_404(Profesional, id=id)
+            profesional = get_object_or_404(Profesional, id=id, clinica=clinica)
             form = ProfesionalABMForm(instance=profesional)
             modificacion = True
-    else:
-        if 'btn_baja' in request.POST:
-            profesional = get_object_or_404(Profesional, id=id)
-            profesional.delete()
-            form = ProfesionalABMForm()
         else:
-            if request.POST.get('btn_alta'):
-                form = ProfesionalABMForm(request.POST)
-                if form.is_valid():
-                    objeto = form.save(commit=False)
-                    objeto.clinica = clinica
-                    objeto.estado = 'A'  # Define estados iniciales
-                    objeto.save()
+            form = ProfesionalABMForm()
+    elif request.method == 'POST':
+        if 'btn_baja' in request.POST:
+                profesional = get_object_or_404(Profesional, id=id, clinica=clinica)     
+                messages.error(request, "El profesional fue eliminado exitosamente.")
+                profesional.delete()
+                return redirect('profesionales')          
+        elif 'btn_alta' in request.POST:
+            form = ProfesionalABMForm(request.POST)
+            if form.is_valid():
+                profesional = form.save(commit=False)
+                profesional.clinica = clinica
+                profesional.estado = 'A'
+                profesional.save()
 
-            elif 'btn_modif' in request.POST:
-                profesional = get_object_or_404(Profesional, id=id)
-                form = ProfesionalABMForm(request.POST, instance = profesional)
-                form.save()
+                messages.success(request, "El profesional fue creado exitosamente.")
                 form = ProfesionalABMForm()
+        elif 'btn_modif' in request.POST:
+            profesional = get_object_or_404(Profesional, id=id, clinica=clinica)
+            form = ProfesionalABMForm(request.POST, instance=profesional)
+            if form.is_valid():
+                form.save()
+                messages.warning(request, "El profesional fue modificado exitosamente.")
 
     return render(request, 'profesionales.html', {
         'form': form,
         'profesionales': profesionales,
-        'modificacion': modificacion
+        'modificacion': modificacion,
     })

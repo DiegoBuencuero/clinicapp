@@ -17,35 +17,16 @@
     {% endfor %}
 </div>
 {% endif %}
+
 <div class="col-lg-12 grid-margin stretch-card">
   <div class="card">
     <div class="card-body">
-      <form class="form-inline" method="get" action="{% url 'profesionales' %}">
-        {% csrf_token %}
-        <div class="row w-100">
-          <!-- Buscador -->
-          <div class="col-md-8">
-            <div class="input-group">
-              <input type="text" name="search" class="form-control" placeholder="{% translate 'Buscar profesional...' %}" aria-label="{% translate 'Buscar profesional' %}">
-              <div class="input-group-append">
-                <button class="btn btn-primary" type="submit">{% translate 'Buscar' %}</button>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 text-right">
-            <a class="btn btn-primary" data-toggle="modal" data-target="#formModal">
-              <i class="icon-head menu-icon mr-2"><br></i>{% translate 'Agregar' %}
-            </a>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<div class="col-lg-12 grid-margin stretch-card">
-  <div class="card">
-    <div class="card-body">
-      <h4 class="card-title">{% translate 'Profesionales' %}</h4>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="card-title mb-0">{% translate 'Profesionales' %}</h4>
+        <a class="btn btn-primary" data-toggle="modal" data-target="#formModal">
+          <i class="icon-head menu-icon mr-2"></i>{% translate 'Agregar' %}
+        </a>
+      </div>
       <p class="card-description">
         {{ empresa.nombre }}
       </p>
@@ -204,7 +185,8 @@
                 <div class="col-md-6">
                   {% if modificacion %}
                     <button type="submit" name="btn_modif" class="btn btn-primary mr-2">{% translate 'Actualizar' %}</button>
-                    <button type="submit" name="btn_baja" class="btn btn-danger mr-2">{% translate 'Borrar' %}</button>
+
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteModal">Eliminar</button>
                   {% else %}
                     <button type="submit" name="btn_alta" class="btn btn-primary mr-2">{% translate 'Crear' %}</button>
                   {% endif %}
@@ -216,6 +198,31 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form method="post">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmDeleteModalLabel">{% translate 'Confirmar Eliminación' %}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% translate '¿Estás seguro de que deseas eliminar este profesional? Esta acción no se puede deshacer.' %}
+      
+          <input type="hidden" name="id" id="deleteProfId" value="">
+          <input type="hidden" name="btn_baja" value="1">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">{% translate 'Cancelar' %}</button>
+          <button type="submit" class="btn btn-danger">{% translate 'Eliminar' %}</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}
