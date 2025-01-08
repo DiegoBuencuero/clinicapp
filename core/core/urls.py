@@ -16,9 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from clinica.views import dashboard, inicio, clinica_detalle, pacientes, profesionales
 from django.conf import settings
-from clinica.views import login_view, signup, activate, ajax_obtener_profesionales
+from clinica.views import dashboard, inicio, clinica_detalle, pacientes, profesionales
+from clinica.views import login_view, signup, activate, ajax_obtener_profesionales, ajax_obtener_pacientes
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
@@ -34,6 +34,10 @@ urlpatterns = [
     path('profesionales/<int:id>/', profesionales, name='editar_profesional'),
     path('get_prof', ajax_obtener_profesionales, name='ajax_obtener_profesionales'),
 
+    #----------------------------PACIENTES-----------------------------------------------
+    path('pacientes', pacientes, name='pacientes'),
+    path('pacientes/<int:id>/', pacientes, name='editar_paciente'),
+    path('get_paci', ajax_obtener_pacientes, name='ajax_obtener_pacientes'),
     #----------------------------LOGIN-----------------------------------------------
     path('login/', login_view, name='login_view'),
     path('accounts/password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),

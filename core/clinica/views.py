@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Clinica, Paciente, ObraSocial, RubroUsuario, Profesional
 from django.contrib.auth.decorators import login_required
-from .form import LoginForm, SignupForm, ProfesionalABMForm
+from .form import LoginForm, SignupForm, ProfesionalABMForm, PacienteABMForm
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib import messages 
 from django.utils import timezone
@@ -133,87 +133,65 @@ def activate(request, uidb64, token):
     else:  
         return HttpResponse('Activation link is invalid!')
 
-# ---------------------------------------PACIENTE------------------------------------
-
+#-------------------------------PACIENTE-----------------------------#
 @login_required
-def pacientes(request):
+def pacientes(request, id = None):
     usuario = request.user
     if usuario.rubro_usuario.codigo != 'AC':
         return render(request, 'pag_error.html')
     clinica = usuario.clinica
-    if request.method == 'GET':
-        pacientes = clinica.pacientes.all()
-        return render(request, 'pacientes.html', {'pacientes': pacientes})
-    
-
-# ---------------------------------------PROFESIONAL------------------------------------
-@login_required
-def oprofesionales(request, id=None):
-    usuario = request.user
-
-    # Validar si el usuario tiene permiso
-    if usuario.rubro_usuario.codigo != 'AC':
-        return render(request, 'pag_error.html')
-
-    clinica = usuario.clinica
-    profesionales = Profesional.objects.filter(clinica=clinica).order_by('apellido')
+    print(clinica)
+    pacientes = Paciente.objects.filter(clinicas = clinica).order_by('apellido')
     modificacion = False
-
-    # Si se proporciona un ID, se está en modo edición
-    if id:
-        profesional = get_object_or_404(Profesional, id=id)  # Manejo de excepción si no existe
-        if request.method == 'POST':
-            form = ProfesionalABMForm(request.POST, instance=profesional)
-            if 'borrar' in request.POST and form.is_valid():
-                profesional.delete()
-                messages.success(request, "El profesional fue eliminado exitosamente.")
-                return redirect('profesionales')
-            elif form.is_valid():
-                form.save()
-                messages.success(request, "El profesional fue actualizado exitosamente.")
-                return redirect('profesionales')
-        else:
-            form = ProfesionalABMForm(instance=profesional)
+    form = None
+    if request.method == 'GET':
+        if id:
+            paciente = get_object_or_404(Paciente, id=id, clinicas=clinica)
+            form = PacienteABMForm(instance=paciente)
             modificacion = True
-
-    else:  # Modo creación
-        if request.method == 'POST':
-            form = ProfesionalABMForm(request.POST)
-            if form.is_valid():
-                profesional = form.save(commit=False)
-                profesional.clinica = clinica
-                profesional.estado = 'A'  # Define estados iniciales
-                profesional.save()
-                messages.success(request, "El profesional fue creado exitosamente.")
-                return redirect('profesionales')
-            else:
-                messages.error(request, "Error al crear el profesional. Revisa los datos ingresados.")
         else:
-            form = ProfesionalABMForm()
+            form = PacienteABMForm()
+    elif request.method == 'POST':
+        if 'btn_baja' in request.POST:
+                paciente = get_object_or_404(Paciente, id=id, clinicas=clinica) 
+                paciente.delete()    
+                messages.error(request, "El paciente fue eliminado exitosamente.")
+                return redirect('pacientes')          
+        elif 'btn_alta' in request.POST:
+            form = PacienteABMForm(request.POST)
+            if form.is_valid():
+                paciente = form.save(commit=False)
+                paciente.estado = 'A' 
+                paciente.save()  
+                paciente.clinicas.add(clinica) 
+                form = PacienteABMForm()
+        elif 'btn_modif' in request.POST:
+            paciente = get_object_or_404(Paciente, id=id, clinicas=clinica)
+            form = PacienteABMForm(request.POST, instance=paciente)
+            if form.is_valid():
+                form.save()
+                messages.warning(request, "El paciente fue modificado exitosamente.")
 
-    return render(request, 'profesionales.html', {
+    return render(request, 'pacientes.html', {
         'form': form,
-        'profesionales': profesionales,
-        'modificacion': modificacion
+        'pacientes': pacientes,
+        'modificacion': modificacion,
     })
 
-
-
-
 @login_required
-def ajax_obtener_profesionales(request):
+def ajax_obtener_pacientes(request):
     if request.method == 'GET':
         valor = request.GET.get('valor')
-        profesionales = Profesional.objects.filter(Q(nombre__icontains=valor) | Q(apellido__icontains=valor) | Q(numero_matricula__icontains=valor))
+        pacients = Paciente.objects.filter(Q(nombre__icontains=valor) | Q(apellido__icontains=valor))
         data =[]
-        for profesional in profesionales:
-            data.append({'id': profesional.id, 'nombre': profesional.nombre, 'apellido': profesional.apellido, 'especialidad_nombre':profesional.especialidad.nombre})
+        for paciente in pacientes:
+            data.append({'id': paciente.id, 'nombre': paciente.nombre, 'apellido': paciente.apellido, })
         response = {'status': '0', 'data': data}
         return JsonResponse(response)
 
-
+#-------------------------------PROFESIONALES-----------------------------#
 @login_required
-def profesionales(request, id=None):
+def profesionales(request):
     usuario = request.user
     if usuario.rubro_usuario.codigo != 'AC':
         return render(request, 'pag_error.html')
@@ -258,3 +236,16 @@ def profesionales(request, id=None):
         'profesionales': profesionales,
         'modificacion': modificacion,
     })
+
+@login_required
+def ajax_obtener_profesionales(request):
+    if request.method == 'GET':
+        valor = request.GET.get('valor')
+        profesionales = Profesional.objects.filter(Q(nombre__icontains=valor) | Q(apellido__icontains=valor) | Q(numero_matricula__icontains=valor))
+        data =[]
+        for profesional in profesionales:
+            data.append({'id': profesional.id, 'nombre': profesional.nombre, 'apellido': profesional.apellido, 'especialidad_nombre':profesional.especialidad.nombre})
+        response = {'status': '0', 'data': data}
+        return JsonResponse(response)
+
+

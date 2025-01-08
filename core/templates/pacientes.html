@@ -4,36 +4,245 @@
 {% block plugin_css%}
 <link rel="stylesheet" href="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'js/select.dataTables.min.css' %}">
+<link rel="stylesheet" href="{% static 'node_modules/mdi/font/css/materialdesignicons.min.css' %}">
 {% endblock %}                          
 {% block content %} 
-<div class="row">
-  <div class="col-md-4">
-    <table>
-      <thead>
-        <th>Nombre</th>
-        <th>Apellido</th>
-      </thead>
-      <tbody>
-        {% for paciente in pacientes %}
-        <tr>
-          <td>{{paciente.nombre}}</td>
-          <td>{{paciente.apellido}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-body">
-        <form class="form-sample" method='post' enctype="multipart/form-data">
-          {% csrf_token %}
-          <div class="row">
-          </div>
 
-        </form>
+{% if messages %}
+<div id="contenedor-mensajes" class="alert-messages">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="col-lg-12 grid-margin stretch-card">
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="card-title mb-0">{% translate 'Profesionales' %}</h4>
+        <a class="btn btn-primary" data-toggle="modal" data-target="#formModal">
+          <i class="icon-head menu-icon mr-2"></i>{% translate 'Agregar' %}
+        </a>
+      </div>
+      <p class="card-description">
+        {{ empresa.nombre }}
+      </p>
+      <div class="table-responsive table-hover">        
+        <table id='id_tabla' class="table table-striped">
+          <thead>
+            <tr>
+              <th>{% translate 'Nombre' %}</th>
+              <th>{% translate 'Apellido' %}</th>
+              <th>{% translate 'Telefono' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for paciente in pacientes %}
+            <tr>
+                <td>
+                    <a href="/pacientes/{{ paciente.id }}">{{ paciente.nombre }}</a>
+                </td>
+                <td>{{ paciente.nombre }}</td>
+                <td>{{ paciente.apellido }}</td>
+                <td>{{ paciente.telefono }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModalLabel" aria-hidden="{% if not modificacion %}true{% endif %}">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="formModalLabel">{% translate 'Agregar Profesional' %}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="{% translate 'Cerrar' %}">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="col-12 grid-margin">
+        <div class="card">
+          <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Nombre' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.nombre }}
+                              {{ form.nombre.errors }}
+                          </div>
+                      </div>
+                  </div>
+          
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Apellido' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.apellido }}
+                              {{ form.apellido.errors }}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Fecha de Nacimiento' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.fecha_nacimiento }}
+                              {{ form.fecha_nacimiento.errors }}
+                          </div>
+                      </div>
+                  </div>
+          
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Tipo de Documento' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.tipo_documento }}
+                              {{ form.tipo_documento.errors }}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'DNI' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.dni }}
+                              {{ form.dni.errors }}
+                          </div>
+                      </div>
+                  </div>
+          
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Género' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.genero }}
+                              {{ form.genero.errors }}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Dirección' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.direccion }}
+                              {{ form.direccion.errors }}
+                          </div>
+                      </div>
+                  </div>
+          
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Teléfono' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.telefono }}
+                              {{ form.telefono.errors }}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Móvil' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.movil }}
+                              {{ form.movil.errors }}
+                          </div>
+                      </div>
+                  </div>
+          
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Email' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.email }}
+                              {{ form.email.errors }}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Obra Social' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.obra_social }}
+                              {{ form.obra_social.errors }}
+                          </div>
+                      </div>
+                  </div>
+          
+                  <div class="col-md-6">
+                      <div class="form-group row">
+                          <label class="col-sm-3 col-form-label">{% translate 'Número de Afiliado' %}</label>
+                          <div class="col-sm-9">
+                              {{ form.numero_afiliado }}
+                              {{ form.numero_afiliado.errors }}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="row">
+                  <div class="col-md-6">
+                      {% if modificacion %}
+                          <button type="submit" name="btn_modif" class="btn btn-primary mr-2">{% translate 'Actualizar' %}</button>
+                          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteModal">{% translate 'Eliminar' %}</button>
+                      {% else %}
+                          <button type="submit" name="btn_alta" class="btn btn-primary mr-2">{% translate 'Crear' %}</button>
+                      {% endif %}
+                      <button type="button" class="btn btn-dark" data-dismiss="modal">{% translate 'Cancelar' %}</button>
+                  </div>
+              </div>
+          </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <form method="post">
+      {% csrf_token %}
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmDeleteModalLabel">{% translate 'Confirmar Eliminación' %}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% translate '¿Estás seguro de que deseas eliminar este profesional? Esta acción no se puede deshacer.' %}
+      
+          <input type="hidden" name="id" id="deleteProfId" value="">
+          <input type="hidden" name="btn_baja" value="1">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">{% translate 'Cancelar' %}</button>
+          <button type="submit" class="btn btn-danger">{% translate 'Eliminar' %}</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}
@@ -45,6 +254,74 @@
 <script src="{% static 'vendors/datatables.net/jquery.dataTables.js' %}"></script>
 <script src="{% static 'vendors/datatables.net-bs4/dataTables.bootstrap4.js' %}"></script>
 <script src="{% static 'js/dataTables.select.min.js' %}"></script>
+
 {% endblock %}
 {% block custom_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    {% if modificacion %}
+      var modal = new bootstrap.Modal(document.getElementById('formModal'), {
+        backdrop: 'static',
+        keyboard: false
+      });
+      modal.show();
+    {% endif %}
+    id_search_top_bar.placeholder = 'Busqueda de Pacientes';
+    id_search_top_bar.addEventListener('input', function () {
+        load_pacientes(id_search_top_bar.value);
+    });
+
+  });
+
+  function load_pacientes(valor) {
+    $.ajax({
+        url: '{% url "ajax_obtener_pacientes" %}', 
+        type: 'GET',
+        dataType: 'json',
+        data: {
+            'valor': valor
+        },
+        success: function(data) {
+            if (data.status === '0') {
+                var tbody = $('#id_tabla tbody');
+                tbody.empty();
+                data.data.forEach(function(registro) {
+
+                  var row = '<tr>' +
+                              '<td>' + '<a href="/paciente/' + registro.id + '">' + registro.nombre + '</a>' + '</td>' +
+                              '<td>' + registro.apellido + '</td>' +
+                              '<td>' + registro.nombre + '</td>' +
+                              '</tr>';
+                    tbody.append(row);
+                });
+            } else {
+              alert('Error al buscar paciente.');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error:', error);
+            alert('Error al obtener los datos');
+        }
+    });
+}
+
+</script>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
