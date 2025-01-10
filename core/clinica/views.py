@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Clinica, Paciente, ObraSocial, RubroUsuario, Profesional
 from django.contrib.auth.decorators import login_required
-from .form import LoginForm, SignupForm, ProfesionalABMForm, PacienteABMForm
+from .form import LoginForm, SignupForm, ProfesionalABMForm, PacienteABMForm, clinicadataForm
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib import messages 
 from django.utils import timezone
@@ -249,3 +249,20 @@ def ajax_obtener_profesionales(request):
         return JsonResponse(response)
 
 
+
+
+
+@login_required
+def clinicadata(request):
+    usuario = request.user
+    clinica = usuario.clinica
+    if request.method == 'POST':
+        form = clinicadataForm(request.POST, instance=clinica)
+        if form.is_valid():
+            form.save()
+            return redirect('/')
+    else:
+        form = clinicadataForm(instance=clinica)
+    return render(request, 'clinicadata.html', {
+        'form': form,
+    })

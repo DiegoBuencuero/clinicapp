@@ -1,7 +1,7 @@
 from django.forms import ModelForm, Form
 from django import forms
 from django.contrib.auth.forms import UserCreationForm  
-from .models import TipoDocumento, CustomUser, Profesional, Paciente
+from .models import TipoDocumento, CustomUser, Profesional, Paciente, Clinica
 from django.utils.translation import gettext_lazy as _
 
 class BaseForm(ModelForm):
@@ -71,3 +71,8 @@ class PacienteABMForm(BaseForm):
         model = Paciente
         fields = '__all__' 
         exclude = ['clinicas', 'estado']  
+
+class clinicadataForm(BaseForm):
+    class Meta:
+        model = Clinica
+        fields = '__all__' 

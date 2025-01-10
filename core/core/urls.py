@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from clinica.views import dashboard, inicio, clinica_detalle, pacientes, profesionales
-from clinica.views import login_view, signup, activate, ajax_obtener_profesionales, ajax_obtener_pacientes
+from clinica.views import login_view, signup, activate, ajax_obtener_profesionales, ajax_obtener_pacientes, clinicadata
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
@@ -51,6 +51,7 @@ urlpatterns = [
 
   
     #----------------------------PARA ACOMODAR-----------------------------------------------
+    path('cldata', clinicadata, name='clinicadata'),
 
 
 

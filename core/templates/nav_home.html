@@ -14,7 +14,7 @@
     </a>
     <div class="collapse" id="ui-basic">
       <ul class="nav flex-column sub-menu">
-        <li class="nav-item"> <a class="nav-link" href="/01">Campo</a></li>
+        <li class="nav-item"> <a class="nav-link" href="{% url "clinicadata" %}">Datos Clinica</a></li>
         <li class="nav-item"> <a class="nav-link" href="/0101">Lote</a></li>
         <li class="nav-item"> <a class="nav-link" href="/regLluvias">Registros LLuvia</a></li>
         <li class="nav-item"> <a class="nav-link" href="/general/contactos">Contactos</a></li>
@@ -33,32 +33,11 @@
       <span class="menu-title">{% translate "Pacientes" %}</span>
     </a>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="#">
-      <i class="icon-tag menu-icon"></i>
-      <span class="menu-title">{% translate "Informes" %}</span>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="#">
-      <i class="icon-tag menu-icon"></i>
-      <span class="menu-title">{% translate "Perfil" %}</span>
-    </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="#">
-      <i class="icon-tag menu-icon"></i>
-      <span class="menu-title">{% translate "Manual" %}</span>
-    </a>
-  </li>
 
 
 
 
-
-
-
-
+  {% comment %} 
 
   <li class="nav-item">
     <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
@@ -206,6 +185,6 @@
 
     <i class="icon-home"></i> <!-- Icono de inicio -->
 
-  </li>
+  </li> {% endcomment %}
   {% endblock %}
   
