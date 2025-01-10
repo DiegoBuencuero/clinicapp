@@ -191,7 +191,7 @@ def ajax_obtener_pacientes(request):
 
 #-------------------------------PROFESIONALES-----------------------------#
 @login_required
-def profesionales(request):
+def profesionales(request, id = None):
     usuario = request.user
     if usuario.rubro_usuario.codigo != 'AC':
         return render(request, 'pag_error.html')
