@@ -156,14 +156,35 @@
         <i class="settings-close ti-close"></i>
         <ul class="nav nav-tabs border-top" id="setting-panel" role="tablist">
           <li class="nav-item">
-            <a class="nav-link active" id="todo-tab" data-toggle="tab" href="#todo-section" role="tab" aria-controls="todo-section" aria-expanded="true">TO DO LIST</a>
+            <a class="nav-link active" id="action-tab" data-toggle="tab" href="#action-section" role="tab" aria-controls="action-section" aria-expanded="true">ACCIONES</a>
           </li>
+          {% comment %} <li class="nav-item">
+            <a class="nav-link active" id="todo-tab" data-toggle="tab" href="#todo-section" role="tab" aria-controls="todo-section">TO DO LIST</a>
+          </li> {% endcomment %}
           <li class="nav-item">
             <a class="nav-link" id="chats-tab" data-toggle="tab" href="#chats-section" role="tab" aria-controls="chats-section">CHATS</a>
           </li>
         </ul>
         <div class="tab-content" id="setting-content">
-          <div class="tab-pane fade show active scroll-wrapper" id="todo-section" role="tabpanel" aria-labelledby="todo-section">
+
+
+          <div class="tab-pane fade show active scroll-wrapper" id="action-section" role="tabpanel" aria-labelledby="action-section">
+            <h4 class="px-3 text-muted mt-5 font-weight-light mb-0">Acciones</h4>
+            <a class="nav-link" href="/logout">
+              <i class="icon-tag menu-icon"></i>
+              <span class="menu-title">Logoff</span>
+            </a>
+        
+          </div> 
+          <!-- Actions section tab ends -->
+
+
+
+
+
+
+
+          {% comment %} <div class="tab-pane fade" id="todo-section" role="tabpanel" aria-labelledby="todo-section">
             <div class="add-items d-flex px-3 mb-0">
               <form class="form w-100">
                 <div class="form-group d-flex">
@@ -238,7 +259,7 @@
               <p class="mb-0 font-weight-thin text-gray">Meeting with Alisa</p>
               <p class="text-gray mb-0 ">Call Sarah Graves</p>
             </div>
-          </div> 
+          </div> {% endcomment %}
           <!-- To do section tab ends -->
           <div class="tab-pane fade" id="chats-section" role="tabpanel" aria-labelledby="chats-section">
             <div class="d-flex align-items-center justify-content-between border-bottom">
@@ -298,8 +319,14 @@
                 <small class="text-muted my-auto">47 min</small>
               </li>
             </ul>
-          </div>
+          </div> 
           <!-- chat tab ends -->
+
+
+
+
+
+
         </div>
       </div>
       <!-- partial -->

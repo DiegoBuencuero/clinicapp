@@ -108,7 +108,7 @@ class Profesional(models.Model):
     cuit = models.CharField(max_length=50)
     numero_matricula = models.CharField(max_length=30, verbose_name=_('numero_matricula'))
     estado = models.CharField(max_length=1)       
-    obras_sociales = models.ManyToManyField( ObraSocial, verbose_name=_('obras_sociales'))                                                               
+    obras_sociales = models.ManyToManyField( ObraSocial, verbose_name=_('obras_sociales'), null=True, blank=True)                                                               
 
 
 

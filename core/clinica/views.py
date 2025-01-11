@@ -170,6 +170,7 @@ def pacientes(request, id = None):
             form = PacienteABMForm(request.POST, instance=paciente)
             if form.is_valid():
                 form.save()
+                form = PacienteABMForm()
                 messages.warning(request, "El paciente fue modificado exitosamente.")
 
     return render(request, 'pacientes.html', {
@@ -229,6 +230,7 @@ def profesionales(request, id = None):
             form = ProfesionalABMForm(request.POST, instance=profesional)
             if form.is_valid():
                 form.save()
+                form = ProfesionalABMForm()
                 messages.warning(request, "El profesional fue modificado exitosamente.")
 
     return render(request, 'profesionales.html', {
@@ -266,3 +268,15 @@ def clinicadata(request):
     return render(request, 'clinicadata.html', {
         'form': form,
     })
+
+
+
+@login_required
+def habilitar_turnera(request):
+    pass
+
+
+
+@login_required
+def habilitar_turnera(request):
+    pass
