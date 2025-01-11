@@ -270,13 +270,16 @@ def clinicadata(request):
     })
 
 
+from .form import HabilitacionTurneraForma
 
 @login_required
 def habilitar_turnera(request):
-    pass
-
+    form = HabilitacionTurneraForma()
+    return render(request, 'habilitar_turnera.html', {
+        'form': form,
+    })
 
 
 @login_required
-def habilitar_turnera(request):
+def bloquear_turnera(request):
     pass

@@ -1,9 +1,10 @@
 from django.forms import ModelForm, Form
 from django import forms
 from django.contrib.auth.forms import UserCreationForm  
-from .models import TipoDocumento, CustomUser, Profesional, Paciente, Clinica
+from .models import TipoDocumento, CustomUser, Profesional, Paciente, Clinica, TransactionLog
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+
 
 class BaseForm(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -124,3 +125,10 @@ class CustomUserChangeForm(forms.ModelForm):
     def clean_password(self):
         # Devuelve el valor inicial sin cambios
         return self.initial["password"]    
+    
+class HabilitacionTurneraForma(BaseForm):
+    class Meta:
+        model = TransactionLog
+        fields = '__all__' 
+        exclude = ['usuario', 'proceso', 'fecha_hora']  
+    

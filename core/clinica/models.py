@@ -108,7 +108,7 @@ class Profesional(models.Model):
     cuit = models.CharField(max_length=50)
     numero_matricula = models.CharField(max_length=30, verbose_name=_('numero_matricula'))
     estado = models.CharField(max_length=1)       
-    obras_sociales = models.ManyToManyField( ObraSocial, verbose_name=_('obras_sociales'), null=True, blank=True)                                                               
+    obras_sociales = models.ManyToManyField( ObraSocial, verbose_name=_('obras_sociales'), blank=True)                                                               
 
 
 
@@ -129,8 +129,7 @@ class HorarioProfesional(models.Model):
 
 class BloqueoHorarioProfesional(models.Model):
     Profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, verbose_name=_('Profesional'))
-    desde = models.DateField(verbose_name=_('Desde'))
-    hasta = models.DateField(verbose_name=_('Hasta'))
+    fecha = models.DateField(verbose_name=_('Fecha'))
 
 class TipoDocumento(models.Model):
     def __str__(self):
@@ -163,8 +162,10 @@ class Paciente(models.Model):
 
 class Habilitacion(models.Model):
     profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, verbose_name = _("profesional"))
-    desde = models.DateField(verbose_name=_('Desde'))
-    hasta = models.DateField(verbose_name=_('Hasta'))
+    fecha = models.DateField(verbose_name=_('Fecha'))
+    hora_inicio = models.TimeField(verbose_name=_('Hora Inicio'))
+    hora_fin = models.TimeField( verbose_name= _('Hora Fin'))
+    duracion = models.IntegerField( verbose_name=_('Duracion'))
 
 class Turno(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, verbose_name=_("paciente"))
@@ -174,3 +175,18 @@ class Turno(models.Model):
     estado = models.CharField(max_length=1)
     notas = models.TextField(verbose_name=_("notas"), blank=True, null=True)
     usuario = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    sobreturno = models.BooleanField(default=False)
+
+
+class TransactionLog(models.Model):
+    usuario = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=True, null=True)
+    fecha_hora = models.DateTimeField(auto_now_add=True, verbose_name=_("Fecha de creación"))
+    proceso = models.CharField(max_length=1, choices = [
+        ('H', _('Habilitacion profesional')),
+        ('B', _('Bloqueo profesional')),
+    ]
+                               )
+    profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, verbose_name = _("profesional"), null=True, blank=True)
+    hora_inicio = models.TimeField(verbose_name=_('Hora Inicio'), null=True, blank=True)
+    hora_fin = models.TimeField( verbose_name= _('Hora Fin'), null=True, blank=True)
+    duracion = models.IntegerField( verbose_name=_('Duracion'), null=True, blank=True)
