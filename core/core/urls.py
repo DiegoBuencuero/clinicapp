@@ -17,9 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf import settings
-from clinica.views import dashboard, inicio, clinica_detalle, pacientes, profesionales, habilitar_turnera
+from clinica.views import dashboard, inicio, clinica_detalle, pacientes, profesionales
 from clinica.views import login_view, signup, activate, ajax_obtener_profesionales, ajax_obtener_pacientes, clinicadata
-from clinica.views import ajax_get_prof_conf, ajax_get_disponibilidad_prof
+from clinica.views_diego import habilitar_turnera, ajax_get_prof_conf, ajax_get_disponibilidad_prof
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
