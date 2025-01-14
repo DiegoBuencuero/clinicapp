@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
+{% block head %}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">{% endblock %}
 {% block content %} 
 {% if messages %}
 <div id="contenedor-mensajes" class="alert-messages">
@@ -32,7 +34,65 @@
                 {% endfor %}
                 <button type="submit" class="btn btn-primary mr-2">{% translate "Ejecutar" %}</button>
             </form>
+            <div class ="col-md-4 p-0">
+                <div id = "calendar"></div>
+             </div>
+
         </div>
     </div>
 </div>
+
+
+<script>  
+
+document.addEventListener("DOMContentLoaded", function() {       
+    $("#calendar").datepicker({
+        numberOfMonths: 4, // Muestra 4 meses
+        showButtonPanel: true
+    });
+    id_profesional.addEventListener("change", function(event) {
+        $.ajax({
+            url: '/ajax_get_prof_conf',
+            type: 'GET',
+            async: false,
+            data: { 'profesional_id': id_profesional.value },
+            dataType: 'json',
+    
+            success: function(response) {
+                //('ACA CARGAR LOS DATOS DE VISUALIZACION DE LA TABLA HorarioProfesional');
+                console.log('datos prof: ', response.data);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('{% translate "Error al obtener la configuracion del profesional" %}')
+
+            }
+        });
+        $.ajax({
+            url: '/ajax_get_disponibilidad_prof',
+            type: 'GET',
+            async: false,
+            data: { 'profesional_id': id_profesional.value, 'mes_desde':1, 'mes_hasta':4},
+            dataType: 'json',
+    
+            success: function(response) {
+                console.log('fechas: ', response.data);
+                //aca con estas fechas marcar en el calendario
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('{% translate "Error al obtener la configuracion del profesional" %}')
+
+            }
+        });
+
+    });
+});
+
+
+</script>  
+
 {% endblock %}
+{% block custom_js %}
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+{% endblock custom_js %}

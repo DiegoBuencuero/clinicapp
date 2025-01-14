@@ -187,6 +187,6 @@ class TransactionLog(models.Model):
     ]
                                )
     profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, verbose_name = _("profesional"), null=True, blank=True)
-    hora_inicio = models.TimeField(verbose_name=_('Hora Inicio'), null=True, blank=True)
-    hora_fin = models.TimeField( verbose_name= _('Hora Fin'), null=True, blank=True)
-    duracion = models.IntegerField( verbose_name=_('Duracion'), null=True, blank=True)
+    fecha_desde = models.DateField()
+    fecha_hasta = models.DateField()
+    

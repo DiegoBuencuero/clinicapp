@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Clinica, Profesional, RubroUsuario, Pais, Especialidad, ObraSocial, TipoDocumento, CustomUser, Paciente
+from .models import HorarioProfesional, Habilitacion
 from django.contrib.auth.admin import UserAdmin
 from .form import CustomUserCreationForm, CustomUserChangeForm
 # Register your models here.
@@ -37,3 +38,5 @@ class CustomUserAdmin(UserAdmin):
 
 # Registra el modelo con el admin personalizado
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(HorarioProfesional)
+admin.site.register(Habilitacion)

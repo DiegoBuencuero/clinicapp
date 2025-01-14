@@ -127,6 +127,9 @@ class CustomUserChangeForm(forms.ModelForm):
         return self.initial["password"]    
     
 class HabilitacionTurneraForma(BaseForm):
+    def __init__(self, company, *args, **kwargs):
+        super (HabilitacionTurneraForma,self ).__init__(*args,**kwargs)
+        self.fields['profesional'].queryset = Profesional.objects.filter(clinica = company)
     class Meta:
         model = TransactionLog
         fields = '__all__' 
