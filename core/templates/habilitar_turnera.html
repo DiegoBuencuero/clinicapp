@@ -4,6 +4,41 @@
 {% block head %}
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">{% endblock %}
 {% block content %} 
+<style>
+    .calendario-centrado {
+        display: flex;
+        justify-content: center; /* Centra horizontalmente */
+        height: 100%;           /* Asegura que la columna ocupe todo el espacio disponible */
+        min-height: 300px;      /* Altura mínima para el contenedor */
+        margin: 0;              /* Elimina márgenes extra */
+        padding: 0;             /* Elimina relleno extra */
+        margin-top:0;
+    }
+
+    .ui-widget-header {
+        border: 1px solid #dddddd;
+        background: #ffffff !important;
+        color: #333333; 
+        font-weight: 200;
+    }
+    .ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+        border: 1px solid #003eff;
+        background: #4B49AC;
+        font-weight: normal;
+        color: #ffffff;
+    }
+    .ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+        border: 1px solid #b597ee;
+        background: #b597ee;
+        color: #ffffff;
+    }
+    .ui-datepicker-multi-2 .ui-datepicker-group {
+        width: 65%;
+        height:65%;
+        margin: 15px;
+    }
+
+</style>
 {% if messages %}
 <div id="contenedor-mensajes" class="alert-messages">
     {% for message in messages %}
@@ -14,42 +49,89 @@
 </div>
 {% endif %}
 
-
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h4 class="card-title mb-0">{% translate 'Habilitar Turnera' %}</h4>
             </div>
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="form-group row">
-                        <label for="{{field.id_for_label}}" class="col-sm-3 col-form-label">{{field.label_tag}}</label>
-                        <div class="col-sm-9">
-                            {{field}}
-                            {{field.errors}}
-                        </div>
-                    </div>                              
-                {% endfor %}
-                <button type="submit" class="btn btn-primary mr-2">{% translate "Ejecutar" %}</button>
-            </form>
-            <div class ="col-md-4 p-0">
-                <div id = "calendar"></div>
-             </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
 
+                        <div class="form-group row">
+                            <label for="{{ form.profesional.id_for_label }}" class="col-sm-3 col-form-label">
+                                {{ form.profesional.label }}
+                            </label>
+                            <div class="col-sm-6">
+                                {{ form.profesional }}
+                                {{ form.profesional.errors }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="{{ form.fecha_desde.id_for_label }}" class="col-sm-3 col-form-label">
+                                {{ form.fecha_desde.label }}
+                            </label>
+                            <div class="col-sm-6">
+                                {{ form.fecha_desde }}
+                                {{ form.fecha_desde.errors }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="{{ form.fecha_hasta.id_for_label }}" class="col-sm-3 col-form-label">
+                                {{ form.fecha_hasta.label }}
+                            </label>
+                            <div class="col-sm-6">
+                                {{ form.fecha_hasta }}
+                                {{ form.fecha_hasta.errors }}
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" for="borrar_habilitaciones">
+                                {% translate "Borrar habilitaciones existentes" %}
+                            </label>
+                            <div class="col-sm-6">
+                                <input type="checkbox" id="borrar_habilitaciones" name="borrar_habilitaciones">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            {% translate "Ejecutar" %}
+                        </button>
+                    </form>
+                </div> 
+                <div class="col-md-6 d-flex justify-content-center calendario-centrado">
+                    <div id="calendar"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-
 <script>  
-
 document.addEventListener("DOMContentLoaded", function() {       
+    let fecha_selecc = []; 
+
     $("#calendar").datepicker({
-        numberOfMonths: 4, // Muestra 4 meses
-        showButtonPanel: true
+        numberOfMonths: 2,
+        showButtonPanel: false,
+        dateFormat: "dd/mm/yy",
+        onSelect: function (dateText) {
+            fecha_selecc.push(dateText);
+            console.log(fecha_selecc);
+    
+            if (fecha_selecc.length === 1) {
+                document.querySelector('input[name="fecha_desde"]').value = dateText;
+            } else if (fecha_selecc.length === 2) {
+                document.querySelector('input[name="fecha_hasta"]').value = dateText;
+                fecha_selecc = [];
+            }
+        },
     });
+
     id_profesional.addEventListener("change", function(event) {
         $.ajax({
             url: '/ajax_get_prof_conf',
