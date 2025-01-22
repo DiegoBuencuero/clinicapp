@@ -129,9 +129,9 @@ class CustomUserChangeForm(forms.ModelForm):
 class HabilitacionTurneraForma(BaseForm):
     def __init__(self, company, *args, **kwargs):
         super (HabilitacionTurneraForma,self ).__init__(*args,**kwargs)
+        self.fields['borrar_habilitaciones'].widget.attrs['class'] = ''
         self.fields['profesional'].queryset = Profesional.objects.filter(clinica = company)
     class Meta:
         model = TransactionLog
         fields = '__all__' 
         exclude = ['usuario', 'proceso', 'fecha_hora']  
-    

@@ -95,7 +95,8 @@
                                 {% translate "Borrar habilitaciones existentes" %}
                             </label>
                             <div class="col-sm-6">
-                                <input type="checkbox" id="borrar_habilitaciones" name="borrar_habilitaciones">
+                                {{form.borrar_habilitaciones}}
+                                {{form.borrar_habilitaciones.errors}}
                             </div>
                         </div>
 

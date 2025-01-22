@@ -189,4 +189,4 @@ class TransactionLog(models.Model):
     profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, verbose_name = _("profesional"), null=True, blank=True)
     fecha_desde = models.DateField()
     fecha_hasta = models.DateField()
-    
+    borrar_habilitaciones = models.BooleanField(default = False, null=True, blank=True)
