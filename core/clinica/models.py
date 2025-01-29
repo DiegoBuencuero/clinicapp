@@ -186,7 +186,7 @@ class TransactionLog(models.Model):
         ('B', _('Bloqueo profesional')),
     ]
                                )
-    profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, verbose_name = _("profesional"), null=True, blank=True)
+    profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, verbose_name = _("profesional"))
     fecha_desde = models.DateField()
     fecha_hasta = models.DateField()
     borrar_habilitaciones = models.BooleanField(default = False, null=True, blank=True)

@@ -127,11 +127,14 @@ class CustomUserChangeForm(forms.ModelForm):
         return self.initial["password"]    
     
 class HabilitacionTurneraForma(BaseForm):
+    borrar_habilitaciones = forms.BooleanField( required=False, label="Borrar habilitaciones existentes")
+
     def __init__(self, company, *args, **kwargs):
-        super (HabilitacionTurneraForma,self ).__init__(*args,**kwargs)
-        self.fields['borrar_habilitaciones'].widget.attrs['class'] = ''
-        self.fields['profesional'].queryset = Profesional.objects.filter(clinica = company)
+        super(HabilitacionTurneraForma, self).__init__(*args, **kwargs)
+        self.fields['borrar_habilitaciones'].widget.attrs['class'] = 'form-check-input'
+        self.fields['profesional'].queryset = Profesional.objects.filter(clinica=company)
+
     class Meta:
         model = TransactionLog
-        fields = '__all__' 
-        exclude = ['usuario', 'proceso', 'fecha_hora']  
+        fields = '__all__'
+        exclude = ['usuario', 'proceso', 'fecha_hora']

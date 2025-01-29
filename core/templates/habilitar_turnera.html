@@ -5,15 +5,6 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">{% endblock %}
 {% block content %} 
 <style>
-    .calendario-centrado {
-        display: flex;
-        justify-content: center; /* Centra horizontalmente */
-        height: 100%;           /* Asegura que la columna ocupe todo el espacio disponible */
-        min-height: 300px;      /* Altura mínima para el contenedor */
-        margin: 0;              /* Elimina márgenes extra */
-        padding: 0;             /* Elimina relleno extra */
-        margin-top:0;
-    }
 
     .ui-widget-header {
         border: 1px solid #dddddd;
@@ -32,22 +23,27 @@
         background: #b597ee;
         color: #ffffff;
     }
-    .ui-datepicker-multi-2 .ui-datepicker-group {
-        width: 65%;
-        height:65%;
-        margin: 15px;
+    .form-group.row {
+        display: flex;
+        align-items: center; /* Alinear verticalmente */
+    }
+    
+    .form-group.row label {
+        margin-bottom: 0; /* Eliminar márgenes adicionales */
+        display: flex;
+        align-items: center; /* Centrar el texto verticalmente */
     }
 
 </style>
-{% if messages %}
 <div id="contenedor-mensajes" class="alert-messages">
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-            {{ message }}
-        </div>
-    {% endfor %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 </div>
-{% endif %}
 
 <div class="col-lg-12 grid-margin stretch-card">
     <div class="card">
@@ -91,21 +87,20 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-3 col-form-label" for="borrar_habilitaciones">
+                            <label class="col-sm-6 col-form-label" for="borrar_habilitaciones">
                                 {% translate "Borrar habilitaciones existentes" %}
                             </label>
-                            <div class="col-sm-6">
-                                {{form.borrar_habilitaciones}}
-                                {{form.borrar_habilitaciones.errors}}
+                            <div class="col-sm-6 d-flex align-items-center">
+                                <input type="checkbox" id="borrar_habilitaciones" name="borrar_habilitaciones">
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">
+                        <button id='guardar_registro' type="submit" class="btn btn-primary">
                             {% translate "Ejecutar" %}
                         </button>
                     </form>
                 </div> 
-                <div class="col-md-6 d-flex justify-content-center calendario-centrado">
+                <div class="col-md-5 d-flex justify-content-center calendario-centrado">
                     <div id="calendar"></div>
                 </div>
             </div>
@@ -113,65 +108,73 @@
     </div>
 </div>
 <script>  
-document.addEventListener("DOMContentLoaded", function() {       
-    let fecha_selecc = []; 
 
-    $("#calendar").datepicker({
-        numberOfMonths: 2,
-        showButtonPanel: false,
-        dateFormat: "dd/mm/yy",
-        onSelect: function (dateText) {
-            fecha_selecc.push(dateText);
-            console.log(fecha_selecc);
+    document.addEventListener("DOMContentLoaded", function () {
+        let fechas_habilitadas = [];
+        let fecha_selecc = [];
     
-            if (fecha_selecc.length === 1) {
-                document.querySelector('input[name="fecha_desde"]').value = dateText;
-            } else if (fecha_selecc.length === 2) {
-                document.querySelector('input[name="fecha_hasta"]').value = dateText;
-                fecha_selecc = [];
+        function marcarFechas(date) {
+            let fecha = $.datepicker.formatDate('dd/mm/yy', date);
+            if (fechas_habilitadas.includes(fecha)) {
+                return [true, "ui-state-highlight", "Fecha habilitada"];
             }
-        },
-    });
+            return [true, "", ""];
+        }
 
-    id_profesional.addEventListener("change", function(event) {
-        $.ajax({
-            url: '/ajax_get_prof_conf',
-            type: 'GET',
-            async: false,
-            data: { 'profesional_id': id_profesional.value },
-            dataType: 'json',
+        const mensajes = document.getElementById("contenedor-mensajes");
+
+        if (mensajes) {
+            setTimeout(() => {
+                mensajes.style.display = "none";
+            }, 5000);
+
+            const forms = document.querySelectorAll("form");
+            forms.forEach(form => {
+                form.addEventListener("submit", function () {
+                    mensajes.style.display = "none"; 
+                });
+            });
+        }
     
-            success: function(response) {
-                //('ACA CARGAR LOS DATOS DE VISUALIZACION DE LA TABLA HorarioProfesional');
-                console.log('datos prof: ', response.data);
+
+        $("#calendar").datepicker({
+            numberOfMonths: 2,
+            showButtonPanel: false,
+            dateFormat: "dd/mm/yy",
+            beforeShowDay: marcarFechas,
+            onSelect: function (dateText) {
+                fecha_selecc.push(dateText);
+    
+                if (fecha_selecc.length === 1) {
+                    document.querySelector('input[name="fecha_desde"]').value = dateText;
+                } else if (fecha_selecc.length === 2) {
+                    document.querySelector('input[name="fecha_hasta"]').value = dateText;
+                    fecha_selecc = [];
+                }
             },
-            error: function(xhr, status, error) {
-                console.error('Error:', error);
-                alert('{% translate "Error al obtener la configuracion del profesional" %}')
-
-            }
         });
-        $.ajax({
-            url: '/ajax_get_disponibilidad_prof',
-            type: 'GET',
-            async: false,
-            data: { 'profesional_id': id_profesional.value, 'mes_desde':1, 'mes_hasta':4},
-            dataType: 'json',
     
-            success: function(response) {
-                console.log('fechas: ', response.data);
-                //aca con estas fechas marcar en el calendario
-            },
-            error: function(xhr, status, error) {
-                console.error('Error:', error);
-                alert('{% translate "Error al obtener la configuracion del profesional" %}')
-
-            }
-        });
-
+        document.querySelector('#id_profesional').addEventListener("change", function () {
+            let profesional_id = this.value;
+            $.ajax({
+                url: '/ajax_get_prof_conf',
+                type: 'GET',
+                data: { 'profesional_id': profesional_id },
+                dataType: 'json',
+                success: function (response) {
+                    fechas_habilitadas = (response.fechas || []).map(function (fecha) {
+                        let partes = fecha.split('-');
+                        return `${partes[2]}/${partes[1]}/${partes[0]}`;
+                    });
+    
+                    $("#calendar").datepicker("refresh");
+                },
+                error: function () {
+                    alert('Error al obtener la configuración del profesional.');
+                }
+            });
+        });    
     });
-});
-
 
 </script>  
 
