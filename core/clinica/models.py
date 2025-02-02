@@ -121,6 +121,7 @@ class HorarioProfesional(models.Model):
                                                     ('m', _('Miercoles')),
                                                     ('J', _('Jueves')),
                                                     ('V', _('Viernes')),
+                                                    ('S', _('Sabado')),
                                                 ]
     )
     hora_inicio = models.TimeField(verbose_name=_('Hora Inicio'))

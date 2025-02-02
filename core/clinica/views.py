@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Clinica, Paciente, ObraSocial, RubroUsuario, Profesional, Habilitacion
+from .models import Clinica, Paciente, ObraSocial, RubroUsuario, Profesional, Habilitacion, HorarioProfesional
 from django.contrib.auth.decorators import login_required
 from .form import LoginForm, SignupForm, ProfesionalABMForm, PacienteABMForm, clinicadataForm
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
@@ -191,6 +191,7 @@ def ajax_obtener_pacientes(request):
         return JsonResponse(response)
 
 #-------------------------------PROFESIONALES-----------------------------#
+from .forms_leo import HorarioProfesionalFormset
 @login_required
 def profesionales(request, id = None):
     usuario = request.user
@@ -206,9 +207,11 @@ def profesionales(request, id = None):
         if id:
             profesional = get_object_or_404(Profesional, id=id, clinica=clinica)
             form = ProfesionalABMForm(instance=profesional)
+            formset = HorarioProfesionalFormset(instance = profesional)
             modificacion = True
         else:
             form = ProfesionalABMForm()
+            formset = HorarioProfesionalFormset()
     elif request.method == 'POST':
         if 'btn_baja' in request.POST:
                 profesional = get_object_or_404(Profesional, id=id, clinica=clinica)     
@@ -217,26 +220,47 @@ def profesionales(request, id = None):
                 return redirect('profesionales')          
         elif 'btn_alta' in request.POST:
             form = ProfesionalABMForm(request.POST)
-            if form.is_valid():
+            formset = HorarioProfesionalFormset(request.POST)
+            if form.is_valid() and formset.is_valid():
                 profesional = form.save(commit=False)
                 profesional.clinica = clinica
                 profesional.estado = 'A'
                 profesional.save()
-
+                for fs in formset:
+                    horario = fs.save(commit=False)
+                    horario.profesional = profesional
+                    horario.save()
                 messages.success(request, "El profesional fue creado exitosamente.")
                 form = ProfesionalABMForm()
+                formset = HorarioProfesionalFormset()
         elif 'btn_modif' in request.POST:
             profesional = get_object_or_404(Profesional, id=id, clinica=clinica)
             form = ProfesionalABMForm(request.POST, instance=profesional)
-            if form.is_valid():
-                form.save()
+            formset = HorarioProfesionalFormset(request.POST, instance=profesional)
+            formset.empty_permitted = True
+            if form.is_valid() and formset.is_valid():
+                profesional = form.save(commit = False)
+                profesional.save()
+                HorarioProfesional.objects.filter(profesional=profesional).delete()
+                for fs in formset:
+                    horario = fs.save(commit = False)
+                    if horario.hora_inicio is not None:
+                        horario.profesional = profesional
+                        horario.save()
+
                 form = ProfesionalABMForm()
+                formset = HorarioProfesionalFormset()
                 messages.warning(request, "El profesional fue modificado exitosamente.")
+            else:
+                print('form=',form.errors.as_data)
+                for f in formset:
+                    print('formset=',f.errors.as_data)
 
     return render(request, 'profesionales.html', {
         'form': form,
         'profesionales': profesionales,
         'modificacion': modificacion,
+        'formset': formset,
     })
 
 @login_required

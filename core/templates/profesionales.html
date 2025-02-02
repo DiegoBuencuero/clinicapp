@@ -292,6 +292,39 @@
 {% endblock %}
 {% block custom_js %}
 <script>
+
+  let formset = $('#formset');
+  let addButton = $('#add_form');
+  let subsButton = $('#subs_form');
+  let totalForms = $('#id_horarioprofesional_set-TOTAL_FORMS');
+
+  addButton.click(function() {
+    let formCount = formset.children().length;
+    let newForm = formset.children().first().clone();
+    var columnaServicio, columnaCantidad;
+    newForm.find(':input').each(function() {
+      let name = $(this).attr('name').replace('-0-', '-' + formCount + '-');
+      let id = 'id_' + name;
+      $(this).attr({'name': name, 'id': id}).val('').removeAttr('value');
+    });
+    formCount++;
+    totalForms.val(formCount);
+    formset.append(newForm);
+  });
+  subsButton.click(function() {
+    let formset = $('#formset');
+    let totalForms = $('#id_horarioprofesional_set-TOTAL_FORMS');
+    let formCount = formset.children().length;
+    if (formCount > 1) {
+      item = formset.children().eq(formCount-1);
+      item.remove();
+      formCount--;
+      totalForms.val(formCount); 
+  }
+  });
+
+
+
   document.addEventListener('DOMContentLoaded', function() {
     {% if modificacion %}
       var modal = new bootstrap.Modal(document.getElementById('formModal'), {

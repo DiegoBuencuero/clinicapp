@@ -8,9 +8,14 @@ from django.forms import inlineformset_factory, BaseInlineFormSet
 class HorarioProfesionalForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super (HorarioProfesionalForm,self ).__init__(*args,**kwargs)
+    def clean(self):
+        cleaned_data = super().clean()
+        if 'id' in self.errors:
+            del self.errors['id']  # Eliminar error si Django lo agrega
+        return cleaned_data
     class Meta:
         model=HorarioProfesional
         fields='__all__'
-        exclude = ['profesional']
+        exclude = ['profesional', 'id']
 
-TerrenoAlquilerFormset = inlineformset_factory(Profesional, HorarioProfesional, form=HorarioProfesionalForm, extra=1)
+HorarioProfesionalFormset = inlineformset_factory(Profesional, HorarioProfesional, form=HorarioProfesionalForm, extra=1)
