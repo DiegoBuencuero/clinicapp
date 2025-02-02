@@ -70,6 +70,7 @@
           <div class="card-body">
             <form method="post" enctype="multipart/form-data">
               {% csrf_token %}
+              {{ formset.management_form }}
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group row">
@@ -193,6 +194,59 @@
                   <button type="button" class="btn btn-dark" data-dismiss="modal">{% translate 'Cancelar' %}</button>
                 </div>
               </div>
+
+
+
+
+
+
+
+
+
+              <div class="card mt-1">
+                <div class="card-body">
+                    <h4 class="card-title">{% translate "Horario de atencion" %}</h4> 
+                    <div class="table-responsive">
+                        <div class="row mt-3">
+                            <div class="col-md-12 text-left">
+                                <button type="button" id="add_form" class="btn btn-primary btn-rounded btn-icon"><i class="mdi mdi-plus mdi-24px"></i></button>                            
+                                <button type="button" id="subs_form" class="btn btn-secondary btn-rounded btn-icon"><i class="mdi mdi-minus mdi-24px"></i></button>
+                            </div>                        
+                        </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>                                
+                                    <th>{% translate "Dia" %}</th>
+                                    <th>{% translate "Hora Inicio" %}</th>
+                                    <th>{% translate "Hora Fin" %}</th>
+                                    <th>{% translate "Duracion" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="formset" class="mt-3 mb-3">
+                                {% for hp in formset %}
+                                <tr>
+                                    <td>{{ hp.dow }}{{ hp.dow.errors }}</td>
+                                    <td>{{ hp.hora_inicio }}{{ hp.hora_inicio.errors }}</td>
+                                    <td>{{ hp.hora_fin }}{{ hp.hora_fin.errors }}</td>
+                                    <td>{{ hp.duracion }}{{ hp.duracion.errors }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>                      
+                </div>
+            </div>       
+    
+
+
+
+
+
+
+
+
+
+              
             </form>
           </div>
         </div>
